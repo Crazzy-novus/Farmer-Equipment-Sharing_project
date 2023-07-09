@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">FramerFriend</string>
+    <string name="greeting_splashscreen">Hey farmer..!</string>
+    <string name="SplashScreenQutes">Connect-Share-Exchange</string>
+    <string name="image1_description">Greeting image in login screen</string>
+    <string name="greeting_login_screen">Hello Farmer..!</string>
+    <string name="login">login</string>
+    <string name="gust">gust</string>
+    <string name="login_hint">Email</string>
+    <string name="hint_email">Enter Email</string>
+    <string name="hint_password">Enter password</string>
+    <string name="forgot_password">forgot password ?</string>
+    <string name="gust_login">Login as gust</string>
+
+
+</resources>
