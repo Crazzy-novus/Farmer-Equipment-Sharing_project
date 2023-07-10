@@ -7,10 +7,11 @@
     <string name="login">login</string>
     <string name="gust">gust</string>
     <string name="login_hint">Email</string>
-    <string name="hint_email">Enter Email</string>
+    <string name="hint_email">e-mail</string>
     <string name="hint_password">Enter password</string>
     <string name="forgot_password">forgot password ?</string>
     <string name="gust_login">Login as gust</string>
+
 
 
 </resources>
