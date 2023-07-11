@@ -11,7 +11,9 @@
     <string name="hint_password">Enter password</string>
     <string name="forgot_password">forgot password ?</string>
     <string name="gust_login">Login as gust</string>
-
+    <string name="register_bt">Register</string>
+    <string name="click_to_register">Click to Register</string>
+    <string name="logout">Logout</string>
 
 
 </resources>

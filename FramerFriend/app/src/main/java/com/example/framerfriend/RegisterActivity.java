@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,12 +17,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
-    // declaration
-    TextView Register_txt;
+
     TextInputEditText Email_tf, Password_tf;
-    Button Login_btl;
+    Button register_bt, login_btr;
     FirebaseAuth mAuth;
 
     @Override
@@ -40,23 +38,24 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
 
+        // Initialization
         mAuth = FirebaseAuth.getInstance();
-        Email_tf = findViewById(R.id.email_tf);
-        Password_tf = findViewById(R.id.password_tf);
-        Register_txt = findViewById(R.id.register_txt);
-        Login_btl = findViewById(R.id.login_btl);
+        Email_tf = findViewById(R.id.email_tfr);
+        Password_tf = findViewById(R.id.password_tfr);
+        register_bt = findViewById(R.id.register_bt);
+        login_btr = findViewById(R.id.login_bt);
 
-        Register_txt.setOnClickListener(new View.OnClickListener() {
+        login_btr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
-        Login_btl.setOnClickListener(new View.OnClickListener() {
+        register_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // read text from edit text field
@@ -68,35 +67,32 @@ public class LoginActivity extends AppCompatActivity {
                 // email and password is empty or not
                 // Show toast message on screen
                 if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(LoginActivity.this, "Enter the email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Enter the email", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(LoginActivity.this, "Enter the password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Enter the password", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(getApplicationContext(),"Login Success",Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                    Toast.makeText(RegisterActivity.this, "Account Created",
+                                            Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
                                     // If sign in fails, display a message to the user.
-
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.makeText(RegisterActivity.this, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
-
                                 }
                             }
                         });
             }
         });
     }
+
 }
