@@ -14,6 +14,11 @@
     <string name="register_bt">Register</string>
     <string name="click_to_register">Click to Register</string>
     <string name="logout">Logout</string>
+    <string name="Content_Description_mainMenu">To access The Main menu in home page</string>
+    <string name="To_add_homepage">To add their product</string>
+    <string name="logo_name">Get A Greap</string>
+    <string name="search_text">Search Connections</string>
+    <string name="search_icon">search ather user</string>
 
 
 </resources>

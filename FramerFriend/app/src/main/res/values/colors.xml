@@ -5,4 +5,11 @@
     <color name="white">#ffffff</color>
     <color name="text_color">#000000 </color>
 
+    <!-- home page Colors -->
+    <color name="home_background">#f2f5f8</color>
+    <color name="banner_background">#f2f5f8</color>
+    <color name="banner_background_light">#56F1E9CE</color>
+    <color name="colorAccent">#262626</color>
+    <color name="card1">#d2ccdf</color>
+
 </resources>
