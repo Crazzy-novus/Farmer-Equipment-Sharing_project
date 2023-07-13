@@ -19,6 +19,10 @@
     <string name="logo_name">Get A Greap</string>
     <string name="search_text">Search Connections</string>
     <string name="search_icon">search ather user</string>
+    <string name="add_feature">Add feature</string>
+    <string name="add_equipment">Add equipment</string>
+    <string name="rent">rent</string>
+    <string name="purchase">Purchase</string>
 
 
 </resources>
