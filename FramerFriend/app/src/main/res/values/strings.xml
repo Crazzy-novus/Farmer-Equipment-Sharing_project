@@ -23,6 +23,12 @@
     <string name="add_equipment">Add equipment</string>
     <string name="rent">rent</string>
     <string name="purchase">Purchase</string>
+    <string name="name">Name*</string>
+    <string name="simple_image">simple image</string>
+    <string name="nedd_to_do">nedd to do</string>
+    <string name="surename">SureName</string>
+    <string name="phonenumber">PhoneNumber</string>
+    <string name="date_of_birth">Select Date</string>
 
 
 </resources>

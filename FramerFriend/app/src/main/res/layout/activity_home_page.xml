@@ -18,6 +18,7 @@
             android:src="@drawable/menu_icon"
             android:contentDescription="@string/Content_Description_mainMenu" />
         <ImageView
+            android:id="@+id/new_user"
             android:background="@color/banner_background"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
@@ -197,7 +198,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:layout_marginEnd="10sp">
+                    android:layout_marginRight="10sp">
 
 
                     <ImageButton
@@ -207,7 +208,6 @@
                         android:src="@drawable/baseline_shopping_basket_24">
                     </ImageButton>
                     <TextView
-                        android:id="@id/rent_tv_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/rent"
@@ -220,7 +220,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="10sp"
+                    android:layout_marginLeft="10sp"
                     android:orientation="vertical">
 
 
@@ -258,13 +258,14 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
+
                     <ImageButton
                         android:id="@+id/add_equipment_bt"
+                        android:labelFor="@id/add_equipment_bt"
                         android:layout_width="150sp"
                         android:layout_height="150sp"
                         android:src="@drawable/baseline_shopping_basket_24">
                     </ImageButton>
-
                     <TextView
                         android:id="@+id/add_equipment_tv_id"
                         android:layout_width="wrap_content"
