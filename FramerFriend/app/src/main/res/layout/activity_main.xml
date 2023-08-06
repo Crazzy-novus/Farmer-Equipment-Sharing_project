@@ -19,7 +19,7 @@
         android:id="@+id/user_greeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Thank You for Your Registration Your data are collected completely:🫠💀💀👋👋👋"
+        android:text="Thank you for inserting your data into data base we will update you later"
         android:textSize="40sp" />
 
     <Button

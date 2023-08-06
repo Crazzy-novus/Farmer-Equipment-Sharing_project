@@ -27,16 +27,16 @@ public class firstScreen extends AppCompatActivity {
         lottie = findViewById(R.id.lottie);
 
         FarmerFriend.animate().translationY(-1400).setDuration(0).setStartDelay(0);
-        lottie.animate().translationX(0).setDuration(0).setStartDelay(0);
+        lottie.animate().translationX(00).setDuration(0).setStartDelay(0);
 
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent i = new Intent(getApplicationContext(), UserDetailsActivity.class);
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(i);
                 finish();
             }
-        },0);
+        },1500);
     }
 }
