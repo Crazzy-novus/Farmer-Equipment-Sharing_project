@@ -3,7 +3,9 @@ package com.example.framerfriend;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,9 +16,12 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,6 +30,9 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText Email_tf, Password_tf;
     Button Login_btl;
     FirebaseAuth mAuth;
+    protected DatabaseReference reference;
+    protected FirebaseUser user;
+    private String userId;
 
     @Override
     public void onStart() {
@@ -32,6 +40,13 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
+            user = mAuth.getCurrentUser();
+            userId = user.getUid();
+
+            SharedPreferences sharedPreferences = getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("userId", userId);
+            editor.apply();
             Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
             startActivity(intent);
             finish();
@@ -41,6 +56,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
+        FirebaseApp.initializeApp(this);
+        reference = FirebaseDatabase.getInstance().getReference("product_holders");
 
         mAuth = FirebaseAuth.getInstance();
         Email_tf = findViewById(R.id.email_tf);
@@ -83,7 +102,17 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(getApplicationContext(),"Login Success",Toast.LENGTH_SHORT).show();
+                                    // Using shared preference to share user Id across the activities
+                                    user = mAuth.getCurrentUser();
+                                    userId = user.getUid();
+
+                                    SharedPreferences sharedPreferences = getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("userId", userId);
+                                    editor.apply();
+
+
+                                    Toast.makeText(getApplicationContext(),"Login Success"+userId,Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -99,4 +128,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
 }

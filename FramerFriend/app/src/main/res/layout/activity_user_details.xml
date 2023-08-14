@@ -36,6 +36,21 @@
                 app:boxBackgroundColor="@color/home_background"
                 app:boxBackgroundMode="filled">
 
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/et_userid"
+                    android:layout_width="match_parent"
+                    android:layout_height="55sp"
+                    android:hint="@string/userid"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="300sp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40sp"
+                android:layout_marginTop="25sp"
+                app:boxBackgroundColor="@color/home_background"
+                app:boxBackgroundMode="filled">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_username"
                     android:layout_width="match_parent"

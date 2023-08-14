@@ -1,5 +1,10 @@
 package com.example.framerfriend;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,10 +13,13 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 
 import android.app.DatePickerDialog;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -33,8 +41,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.UploadTask;
+
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -44,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+
 // Main class
 public class UserDetailsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -51,6 +63,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
     private static final int REQUEST_IMAGE_PICKER = 1;
      private ImageView imageView_iv;
+     MaterialAutoCompleteTextView userId_tv;
 
     private EditText userDateOfBirth_et, userName_et, sureName_et, phno_et;
     Spinner gender_sp;
@@ -58,12 +71,13 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
     FusedLocationProviderClient fusedLocationProviderClient;
 
     private FirebaseFirestore db;
-
     private EditText latitude_et, longitude_et, city_et, address_et, country_et;
     Button getLocation_bt, submit_bt;
     private final static int REQUEST_CODE = 100;
-    private String _userName_, _sureName_, _userDOB_, _gender_, _latitude_, _longitude_, _city_, _address_, _country_, _phno_;
-
+    Bitmap bitmap;
+    Uri imageUri;
+    private String _userName_, _sureName_, _userDOB_, _gender_, _latitude_, _longitude_, _city_, _address_, _country_, _phno_, _userId_, _imageUrl_;
+  
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +86,16 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
         /* ----------- Initialization  code section -------------*/
 
+
+        // To get userId from Login screen
+        SharedPreferences sharedPreferences = getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
+        _userId_ = sharedPreferences.getString("userId", null);
+
         // To upload image into screen
         imageView_iv = findViewById(R.id.imageView);
 
         // Fire base connection
         db = FirebaseFirestore.getInstance();
-
 
         // calender pop up
         userDateOfBirth_et = findViewById(R.id.et_date);
@@ -92,6 +110,8 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         getLocation_bt = findViewById(R.id.location_bt);
 
         // general user information
+        userId_tv = findViewById(R.id.et_userid);
+        userId_tv.setText(_userId_);
         userName_et = findViewById(R.id.et_username);
         sureName_et = findViewById(R.id.et_surname);
         submit_bt = findViewById(R.id.submit_bt);
@@ -144,6 +164,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
             @Override
             public void onClick(View view) {
 
+
                 _userName_ = userName_et.getText().toString();
                 _sureName_ = sureName_et.getText().toString();
                 _phno_ = phno_et.getText().toString();
@@ -155,43 +176,71 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                 _address_ = address_et.getText().toString();
 
 
-                Map<String, Object> productHolder = new HashMap<>();
-                productHolder.put("Name",_userName_);
-                productHolder.put("SureName", _sureName_);
-                productHolder.put("PhoneNumber", _phno_);
-                productHolder.put("Gender", _gender_);
-                productHolder.put("DateOfBirth", _userDOB_);
 
 
-                Map<String, Object> addressMap = new HashMap<>();
 
-                addressMap.put("city", _city_);
-                addressMap.put("country", _country_);
-                addressMap.put("latitude", _latitude_);
-                addressMap.put("longitude", _longitude_);
-                addressMap.put("addressLine", _address_);
-
-                productHolder.put("Address", addressMap);
-
-
-                db.collection("product_holders")
-                        .add(productHolder)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Toast.makeText(UserDetailsActivity.this, "Data Inserted Successfully", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(UserDetailsActivity.this, "Data not inserted", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                FirebaseStorage.getInstance().getReference("users/user_images/"+ _userId_).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            task.getResult().getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        _imageUrl_ = task.getResult().toString();
+                                        Map<String, Object> productHolder = new HashMap<>();
+                                        productHolder.put("ProfilePhotoURL",_imageUrl_);
+                                        productHolder.put("Name",_userName_);
+                                        productHolder.put("SureName", _sureName_);
+                                        productHolder.put("PhoneNumber", _phno_);
+                                        productHolder.put("Gender", _gender_);
+                                        productHolder.put("DateOfBirth", _userDOB_);
 
 
+
+                                        Map<String, Object> addressMap = new HashMap<>();
+
+                                        addressMap.put("city", _city_);
+                                        addressMap.put("country", _country_);
+                                        addressMap.put("latitude", _latitude_);
+                                        addressMap.put("longitude", _longitude_);
+                                        addressMap.put("addressLine", _address_);
+
+                                        productHolder.put("Address", addressMap);
+
+                                        db.collection("product_holders")
+                                                .document(_userId_)
+                                                .set(productHolder)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(UserDetailsActivity.this, "Data Inserted Successfully"+_userId_, Toast.LENGTH_SHORT).show();
+                                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(UserDetailsActivity.this, "Data not inserted", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                    Toast.makeText(UserDetailsActivity.this, "Image Inserted Successfully"+_imageUrl_, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                        }
+                        else {
+                            Toast.makeText(UserDetailsActivity.this, "Data Inserted Failed"+_imageUrl_, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UserDetailsActivity.this, "Image not inserted", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -222,6 +271,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
                         try {
                             addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            assert addresses != null;
                             if (!addresses.isEmpty()) {
                                 latitude_et.setText(String.valueOf(addresses.get(0).getLatitude()));
                                 longitude_et.setText(String.valueOf(addresses.get(0).getLongitude()));
@@ -290,9 +340,11 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_IMAGE_PICKER && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
+            imageUri = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+
+                // TO get image in image view
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 imageView_iv.setImageBitmap(bitmap);
             } catch (Exception e) {
                 e.printStackTrace();

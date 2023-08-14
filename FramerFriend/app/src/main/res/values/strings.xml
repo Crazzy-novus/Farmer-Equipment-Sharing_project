@@ -37,6 +37,7 @@
     <string name="country">Country</string>
     <string name="get_location">Get location</string>
     <string name="submit">submit</string>
+    <string name="userid">UserId</string>
 
 
     <string-array name="genderList">
