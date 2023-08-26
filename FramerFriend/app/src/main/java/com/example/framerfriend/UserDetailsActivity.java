@@ -1,5 +1,6 @@
 package com.example.framerfriend;
 
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -55,34 +56,35 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 // Main class
 public class UserDetailsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    /* ----------- Declaration  function code section -------------*/
+    /* ----------- Declaration  code section -------------*/
+
+    //private ActivityMainBinding binding ;
 
     private static final int REQUEST_IMAGE_PICKER = 1;
-     private ImageView imageView_iv;
-     MaterialAutoCompleteTextView userId_tv;
+    private ImageView imageView_iv;
+    MaterialAutoCompleteTextView userId_tv;
 
-    private EditText userDateOfBirth_et, userName_et, sureName_et, phno_et;
+    private EditText userDateOfBirth_et, userName_et, sureName_et, phno_et, latitude_et, longitude_et, city_et, address_et, country_et;
     Spinner gender_sp;
     private int year, month, day;
     FusedLocationProviderClient fusedLocationProviderClient;
 
     private FirebaseFirestore db;
-    private EditText latitude_et, longitude_et, city_et, address_et, country_et;
     Button getLocation_bt, submit_bt;
     private final static int REQUEST_CODE = 100;
     Bitmap bitmap;
     Uri imageUri;
     private String _userName_, _sureName_, _userDOB_, _gender_, _latitude_, _longitude_, _city_, _address_, _country_, _phno_, _userId_, _imageUrl_;
-  
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_details);
+
 
         /* ----------- Initialization  code section -------------*/
 
@@ -117,6 +119,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         submit_bt = findViewById(R.id.submit_bt);
         phno_et = findViewById(R.id.et_phnono);
 
+
         // Drop down menu
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.genderList, android.R.layout.simple_spinner_item);
 
@@ -136,6 +139,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         userDateOfBirth_et.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                userDateOfBirth_et.setError(null);
                 year = calendar.get(Calendar.YEAR);
                 month = calendar.get(Calendar.MONTH);
                 day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -155,6 +159,11 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         getLocation_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                latitude_et.setError(null);
+                longitude_et.setError(null);
+                address_et.setError(null);
+                country_et.setError(null);
+                city_et.setError(null);
                 getLastLocation();
             }
         });
@@ -165,21 +174,20 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
             public void onClick(View view) {
 
 
-                _userName_ = userName_et.getText().toString();
-                _sureName_ = sureName_et.getText().toString();
-                _phno_ = phno_et.getText().toString();
-                _userDOB_ = userDateOfBirth_et.getText().toString();
-                _latitude_ = latitude_et.getText().toString();
-                _longitude_ = longitude_et.getText().toString();
-                _city_ = city_et.getText().toString();
-                _country_ = country_et.getText().toString();
-                _address_ = address_et.getText().toString();
+                _userName_ = userName_et.getText().toString().trim();
+                _sureName_ = sureName_et.getText().toString().trim();
+                _phno_ = phno_et.getText().toString().trim();
+                _userDOB_ = userDateOfBirth_et.getText().toString().trim();
+                _latitude_ = latitude_et.getText().toString().trim();
+                _longitude_ = longitude_et.getText().toString().trim();
+                _city_ = city_et.getText().toString().trim();
+                _country_ = country_et.getText().toString().trim();
+                _address_ = address_et.getText().toString().trim();
 
-
-
-
-
-                FirebaseStorage.getInstance().getReference("users/user_images/"+ _userId_).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                if (!validateTextInputField(_userName_, userName_et) | !validateTextInputField(_phno_, phno_et) | !validateTextInputField(_userDOB_, userDateOfBirth_et) | !validateTextInputField(_city_, city_et) | !validateTextInputField(_address_, address_et)) {
+                    return;
+                }
+                FirebaseStorage.getInstance().getReference("users/user_images/" + _userId_).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
@@ -189,13 +197,12 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                                     if (task.isSuccessful()) {
                                         _imageUrl_ = task.getResult().toString();
                                         Map<String, Object> productHolder = new HashMap<>();
-                                        productHolder.put("ProfilePhotoURL",_imageUrl_);
-                                        productHolder.put("Name",_userName_);
+                                        productHolder.put("ProfilePhotoURL", _imageUrl_);
+                                        productHolder.put("Name", _userName_);
                                         productHolder.put("SureName", _sureName_);
                                         productHolder.put("PhoneNumber", _phno_);
                                         productHolder.put("Gender", _gender_);
                                         productHolder.put("DateOfBirth", _userDOB_);
-
 
 
                                         Map<String, Object> addressMap = new HashMap<>();
@@ -214,7 +221,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void unused) {
-                                                        Toast.makeText(UserDetailsActivity.this, "Data Inserted Successfully"+_userId_, Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(UserDetailsActivity.this, "Data Inserted Successfully" + _userId_, Toast.LENGTH_SHORT).show();
                                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                         startActivity(intent);
                                                         finish();
@@ -226,13 +233,12 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                                                     }
                                                 });
                                     }
-                                    Toast.makeText(UserDetailsActivity.this, "Image Inserted Successfully"+_imageUrl_, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(UserDetailsActivity.this, "Image Inserted Successfully" + _imageUrl_, Toast.LENGTH_SHORT).show();
                                 }
                             });
 
-                        }
-                        else {
-                            Toast.makeText(UserDetailsActivity.this, "Data Inserted Failed"+_imageUrl_, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(UserDetailsActivity.this, "Data Inserted Failed" + _imageUrl_, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -350,5 +356,17 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean validateTextInputField(String field, EditText field_et) {
+
+        if (field.isEmpty()) {
+            field_et.setError("Field can't be empty");
+            return false;
+        } else {
+            field_et.setError(null);
+            return true;
+        }
+
     }
 }
