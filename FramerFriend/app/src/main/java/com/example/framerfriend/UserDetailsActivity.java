@@ -3,6 +3,9 @@ package com.example.framerfriend;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
 
@@ -73,7 +76,12 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
     FusedLocationProviderClient fusedLocationProviderClient;
 
     private FirebaseFirestore db;
+    CollectionReference usersCollection;
+    DocumentReference docRef;
+    DocumentSnapshot document;
+
     Button getLocation_bt, submit_bt;
+
     private final static int REQUEST_CODE = 100;
     Bitmap bitmap;
     Uri imageUri;
@@ -98,6 +106,8 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
         // Fire base connection
         db = FirebaseFirestore.getInstance();
+        usersCollection = db.collection("product_holders");
+        docRef = usersCollection.document(_userId_);
 
         // calender pop up
         userDateOfBirth_et = findViewById(R.id.et_date);
@@ -119,6 +129,39 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         submit_bt = findViewById(R.id.submit_bt);
         phno_et = findViewById(R.id.et_phnono);
 
+
+        // Retrieve data from firestore and store
+
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                document = task.getResult();
+                if (document.exists()) {
+                    userName_et.setText(document.getString("Name"));
+                    sureName_et.setText(document.getString("SureName"));
+                    phno_et.setText(document.getString("PhoneNumber"));
+                    userDateOfBirth_et.setText(document.getString("DateOfBirth"));
+                    _gender_ = document.getString("Gender");
+                    Map<String, Object> addressMap = (Map<String, Object>) document.get("Address");
+                    address_et.setText((String) addressMap.get("addressLine"));
+                    city_et.setText((String) addressMap.get("city"));
+                    country_et.setText((String) addressMap.get("country"));
+                    latitude_et.setText((String) addressMap.get("latitude"));
+                    longitude_et.setText((String) addressMap.get("longitude"));
+
+                    Toast.makeText(UserDetailsActivity.this, "data retrieved Successfully" + _imageUrl_, Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(UserDetailsActivity.this, "data retrieved failed" + _imageUrl_, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+        docRef.get().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(UserDetailsActivity.this, "database failed" + _imageUrl_, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Drop down menu
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.genderList, android.R.layout.simple_spinner_item);
@@ -203,6 +246,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                                         productHolder.put("PhoneNumber", _phno_);
                                         productHolder.put("Gender", _gender_);
                                         productHolder.put("DateOfBirth", _userDOB_);
+
 
 
                                         Map<String, Object> addressMap = new HashMap<>();

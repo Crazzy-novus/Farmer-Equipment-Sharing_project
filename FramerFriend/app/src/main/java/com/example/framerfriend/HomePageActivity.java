@@ -35,6 +35,7 @@ public class HomePageActivity extends AppCompatActivity {
 
 
 
+
                 Toast.makeText(HomePageActivity.this,"Add new user", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), UserDetailsActivity.class);
                 intent.putExtra("userId", userId);
