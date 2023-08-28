@@ -1,11 +1,13 @@
 package com.example.framerfriend;
 
 
+import com.example.framerfriend.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 
 
@@ -24,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -48,9 +51,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -59,12 +64,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+
+
 // Main class
 public class UserDetailsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     /* ----------- Declaration  code section -------------*/
-
-    //private ActivityMainBinding binding ;
+    ActivityMainBinding binding;
 
     private static final int REQUEST_IMAGE_PICKER = 1;
     private ImageView imageView_iv;
@@ -76,6 +82,7 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
     FusedLocationProviderClient fusedLocationProviderClient;
 
     private FirebaseFirestore db;
+    private StorageReference storageReference;
     CollectionReference usersCollection;
     DocumentReference docRef;
     DocumentSnapshot document;
@@ -106,8 +113,13 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
         // Fire base connection
         db = FirebaseFirestore.getInstance();
+
+        // To get data from firebase
         usersCollection = db.collection("product_holders");
         docRef = usersCollection.document(_userId_);
+
+        // To get image from storage
+        storageReference = FirebaseStorage.getInstance().getReference("/users/user_images/" + _userId_);
 
         // calender pop up
         userDateOfBirth_et = findViewById(R.id.et_date);
@@ -157,11 +169,34 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
 
         });
         docRef.get().addOnFailureListener(new OnFailureListener() {
+
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(UserDetailsActivity.this, "database failed" + _imageUrl_, Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Retrieve image from storage
+        File localfile;
+        try {
+            localfile = File.createTempFile("temfile", ".jpg");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        storageReference.getFile(localfile)
+                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+                        imageView_iv.setImageBitmap(bitmap);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UserDetailsActivity.this, "storage failed" + _imageUrl_, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
 
         // Drop down menu
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.genderList, android.R.layout.simple_spinner_item);
@@ -246,7 +281,6 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
                                         productHolder.put("PhoneNumber", _phno_);
                                         productHolder.put("Gender", _gender_);
                                         productHolder.put("DateOfBirth", _userDOB_);
-
 
 
                                         Map<String, Object> addressMap = new HashMap<>();
@@ -392,7 +426,6 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         if (requestCode == REQUEST_IMAGE_PICKER && resultCode == RESULT_OK && data != null) {
             imageUri = data.getData();
             try {
-
                 // TO get image in image view
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 imageView_iv.setImageBitmap(bitmap);
@@ -413,4 +446,5 @@ public class UserDetailsActivity extends AppCompatActivity implements AdapterVie
         }
 
     }
+
 }
